@@ -25,8 +25,13 @@ def save():
             with open("data.json", "r") as data_file:
                 data = json.load(data_file)
         except FileNotFoundError:
-            with open("data.json", "w") as data_file:
-                json.dump(new_data, data_file, indent=4)
+            is_ok = messagebox.askokcancel(title=website, message=f" you want to save this information?\n"
+                                                                          f"Email:{email}\n"
+                                                                          f"Password:{password}\n")
+            if is_ok:
+                with open("data.json", "w") as data_file:
+                    json.dump(new_data, data_file, indent=4)
+
         else:
             if website in data:
                 email_saved = data[website]["email"]
@@ -34,18 +39,26 @@ def save():
                 answer = messagebox.askyesnocancel(title=website, message=f" you have this site before\n"
                                                                           f"Email:{email_saved}\n"
                                                                           f"Password:{password_saved}\n"
-                                                                          f"want to use again?", default='yes')
+                                                                          f"want to replace with new pass?(no to use old pass again)", default='yes')
                 if answer:
-                    pyperclip.copy(password_saved)
-                    website_entry.delete(0, END)
-                    password_entry.delete(0, END)
-                elif answer is None:
-                    pass
-                else:
                     data.update(new_data)
                     with open("data.json", "w") as data_file:
                         json.dump(data, data_file, indent=4)
-
+                    pyperclip.copy(password_saved)
+                elif answer is None:
+                    pass
+                else:
+                    pyperclip.copy(password_saved)
+                    
+            else:
+                is_ok = messagebox.askokcancel(title=website, message=f" you want to save this information?\n"
+                                                                          f"Email:{email}\n"
+                                                                          f"Password:{password}\n")
+                if is_ok:
+                    data.update(new_data)
+                    with open("data.json", "w") as data_file:
+                        json.dump(data, data_file, indent=4)
+                    pyperclip.copy(password)
         finally:
             website_entry.delete(0, END)
             password_entry.delete(0, END)
@@ -85,7 +98,10 @@ def find_pass():
 window = Tk()
 window.title("password manager")
 window.config(padx=50, pady=50)
+# window.geometry("700x400")
 
+
+# --------logo-------
 canvas = Canvas(height=200, width=200)
 logo_img = PhotoImage(file="logo.png")
 canvas.create_image(100, 100, image=logo_img)
